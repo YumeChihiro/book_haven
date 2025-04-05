@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shop Chat</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background-color: #f4f4f4;
+    }
+    .chat-container {
+      max-width: 600px;
+      margin: 0 auto;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background-color: #fff;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .chat-header {
+      background-color: #007bff;
+      color: white;
+      padding: 10px;
+      text-align: center;
+      border-top-left-radius: 5px;
+      border-top-right-radius: 5px;
+    }
+    .chat-box {
+      height: 400px;
+      overflow-y: scroll;
+      padding: 10px;
+      border-bottom: 1px solid #ccc;
+    }
+    .chat-message {
+      margin: 5px 0;
+      padding: 8px;
+      border-radius: 5px;
+      max-width: 70%;
+    }
+    .chat-message.customer {
+      background-color: #e1ffc7;
+      margin-right: auto;
+    }
+    .chat-message.manager {
+      background-color: #d1e7ff;
+      margin-left: auto;
+      text-align: right;
+    }
+    .chat-input {
+      display: flex;
+      padding: 10px;
+      background-color: #f9f9f9;
+      border-bottom-left-radius: 5px;
+      border-bottom-right-radius: 5px;
+    }
+    .chat-input input {
+      flex: 1;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      margin-right: 10px;
+    }
+    .chat-input button {
+      padding: 8px 15px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .chat-input button:hover {
+      background-color: #0056b3;
+    }
+    .login-form {
+      max-width: 300px;
+      margin: 20px auto;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background-color: #fff;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .login-form input {
+      width: 100%;
+      padding: 8px;
+      margin: 5px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    .login-form button {
+      width: 100%;
+      padding: 10px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .login-form button:hover {
+      background-color: #0056b3;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <!-- Form đăng nhập -->
+  <div id="loginForm" class="login-form">
+    <h3>Đăng nhập (Shop)</h3>
+    <input type="text" id="email" placeholder="Manager email" value="testelaina0204@gmail.com">
+    <input type="password" id="password" placeholder="Password" value="elaina">
+    <input type="text" id="customerId" placeholder="Customer ID to chat with" value="9">
+    <button onclick="login()">Đăng nhập</button>
+  </div>
+
+  <!-- Giao diện chat -->
+  <div id="chatContainer" class="chat-container hidden">
+    <div class="chat-header">
+      <h2>Shop Chat</h2>
+    </div>
+    <div class="chat-box" id="chatBox"></div>
+    <div class="chat-input">
+      <input type="text" id="messageInput" placeholder="Nhập tin nhắn...">
+      <button onclick="sendMessage()">Gửi</button>
+    </div>
+  </div>
+
+  <!-- Thêm thư viện SockJS và STOMP -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+
+  <script>
+	let token = null;
+	        let userId = null;
+	        let customerId = null;
+	        let managerId = null;
+	        let userRole = null;
+	        let senderType = null;
+	        let stompClient = null;
+
+    // Hàm giải mã JWT payload (nếu cần)
+    function parseJwt(token) {
+      try {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => {
+          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+        return JSON.parse(jsonPayload);
+      } catch (e) {
+        console.error('Error parsing JWT:', e);
+        return {};
+      }
+    }
+
+    // Hàm đăng nhập
+    function login() {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const inputCustomerId = document.getElementById('customerId').value;
+
+      fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email, password: password })
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Login failed with status: ' + response.status);
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log('Server response:', data);
+        token = data.token;
+
+        // Giải mã token (nếu cần)
+        const decodedToken = parseJwt(token);
+        console.log('Decoded token:', decodedToken);
+
+        // Giả định server trả về userId của shop trong data.userId
+        // Với Shop, managerId chính là userId được trả về từ login
+        userId = decodedToken.userId;
+        const rolesArray = decodedToken.roles || []; // roles là mảng
+		const roles = Array.isArray(rolesArray) 
+		                    ? rolesArray.map(role => role.authority || role) // Lấy "authority" từ SimpleGrantedAuthority hoặc giá trị trực tiếp
+		                    : [rolesArray]; // Nếu không phải mảng, chuyển thành mảng đơn
+		
+       	userRole = roles.find(role => role === 'ROLE_CUSTOMER' || role === 'ROLE_SHOP' || role === 'ROLE_ADMIN') || null;
+	   	console.log('Parsed roles:', roles);
+	    console.log('Selected userRole:', userRole);
+		
+        if (userRole !== 'ROLE_SHOP') {
+          throw new Error('This page is for shops only. Your role is: ' + (userRole || 'none'));
+        }
+
+        // customerId được nhập từ form
+		managerId = userId;
+        customerId = parseInt(inputCustomerId);
+        senderType = 'MANAGER';
+
+        // Ẩn form đăng nhập và hiển thị giao diện chat
+        document.getElementById('loginForm').classList.add('hidden');
+        document.getElementById('chatContainer').classList.remove('hidden');
+        console.log('Chat container should be visible now');
+
+        // Kết nối WebSocket
+        connectWebSocket();
+      })
+      .catch(error => {
+        console.error('Error during login:', error);
+        alert(error.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.');
+      });
+    }
+
+    // Kết nối WebSocket
+    function connectWebSocket() {
+      const socket = new SockJS('/chat');
+      stompClient = Stomp.over(socket);
+
+      stompClient.connect({ Authorization: `Bearer ${token}` }, function(frame) {
+        console.log('WebSocket Connected: ' + frame);
+        const topic = `/topic/messages/${customerId}/${managerId}`;
+        stompClient.subscribe(topic, function(message) {
+          const messageData = JSON.parse(message.body);
+          displayMessage(messageData);
+        }, { Authorization: `Bearer ${token}` });
+
+        // Lấy lịch sử tin nhắn khi mở chat
+        fetch(`/api/chat/history?customerId=${customerId}&managerId=${managerId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Failed to fetch chat history');
+          }
+          return response.json();
+        })
+        .then(messages => {
+          messages.forEach(displayMessage);
+        })
+        .catch(error => {
+          console.error('Error fetching chat history:', error);
+          alert('Không thể tải lịch sử tin nhắn. Vui lòng kiểm tra lại.');
+        });
+      }, function(error) {
+        console.error('WebSocket Connection error:', error);
+        alert('Không thể kết nối đến server chat. Vui lòng thử lại sau.');
+      });
+    }
+
+    // Gửi tin nhắn
+    function sendMessage() {
+      const content = document.getElementById('messageInput').value.trim();
+      if (!content) {
+        alert('Vui lòng nhập tin nhắn!');
+        return;
+      }
+
+      const message = {
+        customerId: customerId,
+        managerId: managerId,
+        content: content,
+        senderType: senderType,
+        timestamp: new Date().toISOString()
+      };
+
+      stompClient.send('/app/sendMessage', { Authorization: `Bearer ${token}` }, JSON.stringify(message));
+      document.getElementById('messageInput').value = '';
+    }
+
+    // Hiển thị tin nhắn
+    function displayMessage(message) {
+      const chatBox = document.getElementById('chatBox');
+      const messageElement = document.createElement('div');
+      messageElement.classList.add('chat-message');
+      messageElement.classList.add(message.senderType.toLowerCase());
+      messageElement.textContent = `[${message.senderType}] ${message.content} (${new Date(message.timestamp).toLocaleTimeString()})`;
+      chatBox.appendChild(messageElement);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    // Gửi tin nhắn khi nhấn Enter
+    document.getElementById('messageInput').addEventListener('keypress', function(event) {
+      if (event.key === 'Enter') {
+        sendMessage();
+      }
+    });
+  </script>
+</body>
+</html>
