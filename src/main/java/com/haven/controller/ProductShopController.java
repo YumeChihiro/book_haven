@@ -18,7 +18,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/shop/product-management")
 @Tag(name = "Product shop api", description = "Crud sản phẩm của shop")
-@SecurityRequirement(name = "JWT")
 public class ProductShopController {
 
     @Autowired

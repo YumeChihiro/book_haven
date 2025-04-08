@@ -26,7 +26,6 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping("/api/admin/caterory")
 @Tag(name = "Category api", description = "Crud loại của sản phẩm từ admin")
-@SecurityRequirement(name = "JWT")
 public class CategoryController {
 	
 	private final CategoryService categoryService;

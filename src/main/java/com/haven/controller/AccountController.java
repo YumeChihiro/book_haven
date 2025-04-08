@@ -19,7 +19,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @RestController
 @RequestMapping("/api/admin/lock")
 @Tag(name = "Admin account api", description = "Khóa, mở khóa, xóa tài khoản")
-@SecurityRequirement(name = "JWT")
 public class AccountController {
 	
 	private final AccountService managerAccountService;

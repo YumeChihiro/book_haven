@@ -27,7 +27,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @RestController
 @RequestMapping("/api/shop/feedback")
 @Tag(name = "Feedback, report shop api", description = "Xem và repyly feedback, tạp report cho shop")
-@SecurityRequirement(name = "JWT")
 public class ShopFeedbackController {
 	
 	@Autowired

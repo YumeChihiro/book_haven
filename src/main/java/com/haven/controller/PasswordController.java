@@ -17,7 +17,6 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/change")
 @Tag(name = "Change password api", description = "Lấy opt đổi password, thay đổi password")
-@SecurityRequirement(name = "JWT")
 public class PasswordController {
 
 	private static final Logger logger = LoggerFactory.getLogger(ChangePasswordService.class);

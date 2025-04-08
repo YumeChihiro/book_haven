@@ -25,7 +25,6 @@ import jakarta.servlet.http.HttpServletRequest;
 @RestController
 @RequestMapping("/api/customer")
 @Tag(name = "Search customer api", description = "Tìm kiếm shop, sản phẩm cho customer")
-@SecurityRequirement(name = "JWT")
 public class SearchController {
 
 	@Autowired

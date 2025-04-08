@@ -25,7 +25,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/customer/feedback")
 @Tag(name = "Feedback, report customer api", description = "Xem, tạo feedback và report cho customer")
-@SecurityRequirement(name = "JWT")
 public class CustomerFeedbackController {
 	
 	@Autowired

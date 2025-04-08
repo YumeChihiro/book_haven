@@ -26,7 +26,6 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping("/api/admin/publisher")
 @Tag(name = "Publisher api", description = "Crud publisher từ admin")
-@SecurityRequirement(name = "JWT")
 public class PublisherController {
 	
 	private final PublisherService publisherService;

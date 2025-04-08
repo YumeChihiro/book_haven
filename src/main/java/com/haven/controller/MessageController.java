@@ -26,7 +26,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @RestController
 @RequestMapping("/api/messages")
 @Tag(name = "Message api", description = "Admin và shop gửi tin nhắn, shop và customer xem tin nhắn. Đánh dấu đã đọc")
-@SecurityRequirement(name = "JWT")
 public class MessageController {
 
     @Autowired

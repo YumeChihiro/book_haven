@@ -21,7 +21,6 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/addresses")
-@SecurityRequirement(name = "JWT")
 @Tag(name = "Address api", description = "Crud địa chỉ của customer và shop (lấy id tài khoản từ token để tạo)")
 public class AddressController {
 

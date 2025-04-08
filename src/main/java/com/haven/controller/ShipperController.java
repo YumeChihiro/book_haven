@@ -26,7 +26,6 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping("/api/admin/shipper")
 @Tag(name = "Shipper api", description = "Crud shipper")
-@SecurityRequirement(name = "JWT")
 public class ShipperController {
 	
 	private ShipperService shipperService;

@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/customer/orders")
 @Tag(name = "Order customer api", description = "Xem, mua, hủy, lịch sử cho order của customer")
-@SecurityRequirement(name = "JWT")
 public class OrderCustomerController {
 	
 	@Autowired

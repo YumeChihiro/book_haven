@@ -24,7 +24,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @RestController
 @RequestMapping("/api/shop/orders")
 @Tag(name = "Order shop api", description = "Thống kê, cập nhật đơn hàng của shop")
-@SecurityRequirement(name = "JWT")
 public class OrderShopController {
 	
 	@Autowired

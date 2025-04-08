@@ -26,7 +26,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @RestController
 @RequestMapping("/api/shop/vouchers")
 @Tag(name = "Admin account api", description = "Khóa, mở khóa, xóa tài khoản")
-@SecurityRequirement(name = "JWT")
 public class VoucherShopController {
 	
 	@Autowired

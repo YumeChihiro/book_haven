@@ -30,7 +30,6 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping("/api/shop")
 @Tag(name = "Shop Update API", description = "Update thông tin tài khoản của shop")
-@SecurityRequirement(name = "JWT")
 public class ShopController {
 	
 	@Autowired

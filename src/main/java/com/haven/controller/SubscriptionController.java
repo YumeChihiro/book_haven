@@ -30,7 +30,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @RestController
 @RequestMapping("/api/subscriptions")
 @Tag(name = "Subscription api", description = "Xem, đăng kí, hủy, duyệt gói đăng kí")
-@SecurityRequirement(name = "JWT")
 public class SubscriptionController {
     
     @Autowired

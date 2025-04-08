@@ -21,7 +21,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @RestController
 @RequestMapping("/api/customerUpgrade")
 @Tag(name = "Upgrafe customer ", description = "Nâng cấp tài khoản customer lên shop")
-@SecurityRequirement(name = "JWT")
 public class UpgradeCustomerController{
     
 	private final UpgradeCustomerService upgradeCustomerService;

@@ -19,7 +19,6 @@ import jakarta.servlet.http.HttpServletRequest;
 @RestController
 @RequestMapping("/api/customer/cart")
 @Tag(name = "Cart api", description = "Crud giỏ hàng của customer")
-@SecurityRequirement(name = "JWT")
 public class CartController {
 
     @Autowired

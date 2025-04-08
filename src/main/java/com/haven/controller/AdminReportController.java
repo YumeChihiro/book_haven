@@ -23,7 +23,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @RestController
 @RequestMapping("/api/admin/report")
 @Tag(name = "Admin report feedback api", description = "Xem, cập nhật, xóa báo cáo feedback từ shop hoặc customer")
-@SecurityRequirement(name = "JWT")
 public class AdminReportController {
 
 	@Autowired

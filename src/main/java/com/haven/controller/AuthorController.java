@@ -9,6 +9,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import com.haven.dto.AuthorDTO;
+import com.haven.securities.JwtUtil;
 import com.haven.service.AuthorService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -21,9 +22,11 @@ import jakarta.validation.Valid;
 public class AuthorController {
 
     private final AuthorService authorService;
+    private final JwtUtil jwtUtil;
 
-    public AuthorController(AuthorService authorService) {
+    public AuthorController(AuthorService authorService, JwtUtil jwtUtil) {
         this.authorService = authorService;
+        this.jwtUtil = jwtUtil;
     }
 
     // Create
@@ -34,11 +37,14 @@ public class AuthorController {
 		)
     public ResponseEntity<?> createAuthor(
             @Valid @RequestBody AuthorDTO authorDTO,
-            BindingResult bindingResult) {
+            BindingResult bindingResult,
+            @RequestHeader("Authorization") String token) {
         if (bindingResult.hasErrors()) {
             return ResponseEntity.badRequest().body(bindingResult.getAllErrors());
         }
         try {
+        	String jwt = token.replace("Bearer ", "");
+            Integer userId = jwtUtil.extractUserId(jwt);
             AuthorDTO createdAuthor = authorService.createAuthor(authorDTO);
             return ResponseEntity.status(HttpStatus.CREATED).body(createdAuthor);
         } catch (Exception e) {
@@ -71,7 +77,9 @@ public class AuthorController {
     @Operation(
 		    summary = "Xem tất cả tác giả mà shop đã tạo"
 		)
-    public ResponseEntity<?> getAllAuthors() {
+    public ResponseEntity<?> getAllAuthors(@RequestHeader("Authorization") String token) {
+    	String jwt = token.replace("Bearer ", "");
+        Integer userId = jwtUtil.extractUserId(jwt);
         try {
             List<AuthorDTO> authors = authorService.getAllAuthors();
             return ResponseEntity.ok(authors);
@@ -90,7 +98,10 @@ public class AuthorController {
     public ResponseEntity<?> updateAuthor(
             @PathVariable Integer authorId,
             @Valid @RequestBody AuthorDTO authorDTO,
+            @RequestHeader("Authorization") String token,
             BindingResult bindingResult) {
+    	String jwt = token.replace("Bearer ", "");
+        Integer userId = jwtUtil.extractUserId(jwt);
         if (bindingResult.hasErrors()) {
             return ResponseEntity.badRequest().body(bindingResult.getAllErrors());
         }
@@ -111,8 +122,10 @@ public class AuthorController {
     @Operation(
 		    summary = "Xóa tác giả"
 		)
-    public ResponseEntity<?> deleteAuthor(@PathVariable Integer authorId) {
+    public ResponseEntity<?> deleteAuthor(@PathVariable Integer authorId,  @RequestHeader("Authorization") String token) {
         try {
+        	String jwt = token.replace("Bearer ", "");
+            Integer userId = jwtUtil.extractUserId(jwt);
             authorService.deleteAuthor(authorId);
             return ResponseEntity.ok("Tác giả đã bị xóa thành công.");
         } catch (RuntimeException e) {
